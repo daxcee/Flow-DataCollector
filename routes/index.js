@@ -11,9 +11,9 @@ router.get('/', function(req, res) {
     res.sendFile('events-sample.html', { root: path.join(__dirname, '../public') });
 });
 
-router.get('/scrape', function(req, res) {
-    url =  config.get('local_path') +'/events-sample.html';
-
+router.get('/scrape/:id', function(req, res) {
+    url = config.get('scrapeResources')[req.params.id];
+    console.log('url: ' + url);
     request(url, function(err, resp, html){
         if(err) {
           throw err;
