@@ -5,6 +5,7 @@ var path = require("path");
 var request = require('request');
 var $ = require('cheerio');
 var config = require('config');
+var pretty = require('../utils/pretty');
 
 router.get('/', function(req, res) {
     res.sendFile('events-sample.html', { root: path.join(__dirname, '../public') });
@@ -40,13 +41,13 @@ router.get('/scrape', function(req, res) {
                   city: $(item).children().last().text()
                 };
                 items.push(eventItem);
-                console.log("parsed item: " + eventItem);
+                console.log("parsed item: " + pretty(items));
           });
         }
 
         res.end(JSON.stringify(items, null, 4));
 
-        fs.writeFile('./data/scraped-events.json',JSON.stringify(items, null, 4), function(err){
+        fs.writeFile('./data/scraped-events.json', pretty(items), function(err){
                 if(err)
                     throw err;
         });
