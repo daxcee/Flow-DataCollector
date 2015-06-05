@@ -5,5 +5,6 @@ module.exports = {
     scrapeResources:
         [
             'https://flow-scraper.herokuapp.com/events-sample.html'
-        ]
+        ],
+    cronTime:'* * * * * *'//Runs every second
 };

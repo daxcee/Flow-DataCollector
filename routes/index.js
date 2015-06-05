@@ -18,7 +18,7 @@ router.get('/', function(req, res) {
  * Cron job runs every minute, for now, for production properly setup schedule.
  * More info: http://crontab.org
 */
-new CronJob('*/59 * * * * *', function(next, res, req) {
+new CronJob(config.get('cronTime'), function(next, res, req) {
         url = config.get('scrapeResources')[0];
         console.log(moment().format() + ' cron job for: ' + url);
         request(url, function(err, resp, html){

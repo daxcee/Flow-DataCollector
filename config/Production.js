@@ -5,5 +5,6 @@ module.exports = {
     scrapeResources:
         [
             'https://flow-scraper.herokuapp.com/events-sample.html'
-        ]
+        ],
+    cronTime:'00 59 5 * * 1-7'//Runs every day of the week on @ 5:59 AM
 };

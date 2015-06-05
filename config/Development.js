@@ -5,5 +5,6 @@ module.exports = {
     scrapeResources:
         [
             'http://' + process.env.LOCAL_HOST + ':' + process.env.LOCAL_PORT + '/events-sample.html'
-        ]
+        ],
+    cronTime:'* * * * * *'//Runs every second
     };
