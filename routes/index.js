@@ -28,19 +28,19 @@ router.get('/scrape', function(req, res) {
             };
 
             parsedHTML('.eventItem').map(function(i, item) {
-              var id = $(item).find('.party').attr('href');
-              var offset = id.indexOf("=");
-              if(offset != -1)
+                var id = $(item).find('.party').attr('href');
+                var offset = id.indexOf("=");
+                if(offset != -1)
                   id = id.substring(offset+1, id.length);
-              var eventItem = {
-                  id: $(item).attr('date'),
-                  date: $(item).find('.party').text(),
+                var eventItem = {
+                  id: id,
+                  date: $(item).attr('date'),
                   title: $(item).find('.party').text(),
                   venue: $(item).children().last().text(),
                   city: $(item).children().last().text()
-              };
-              items.push(eventItem);
-              console.log("parsed item: " + eventItem);
+                };
+                items.push(eventItem);
+                console.log("parsed item: " + eventItem);
           });
         }
 
