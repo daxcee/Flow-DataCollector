@@ -4,6 +4,6 @@ module.exports = {
     db_uri: 'mongodb://' + process.env.LOCAL_HOST + ':' + process.env.LOCAL_DBPORT + '/' + process.env.DB_NAME,
     scrapeResources:
         [
-            'http://' + process.env.LOCAL_HOST + ':' + process.env.LOCAL_PORT + '/events-sample.html',
+            'http://' + process.env.LOCAL_HOST + ':' + process.env.LOCAL_PORT + '/events-sample.html'
         ]
     };
