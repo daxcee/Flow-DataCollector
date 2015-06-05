@@ -1,0 +1,12 @@
+machine:
+  node:
+    version: 0.12.3
+
+  services:
+  - mongodb
+
+deployment:
+  staging:
+    branch: master
+    heroku:
+      appname: flow-scraper
