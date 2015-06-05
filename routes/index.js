@@ -41,17 +41,15 @@ router.get('/scrape', function(req, res) {
                   city: $(item).children().last().text()
                 };
                 items.push(eventItem);
-                console.log("parsed item: " + pretty(items));
           });
         }
+        items = pretty.print(items);
+        res.end(items);
 
-        res.end(JSON.stringify(items, null, 4));
-
-        fs.writeFile('./data/scraped-events.json', pretty(items), function(err){
+        fs.writeFile('./data/scraped-events.json', items, function(err){
                 if(err)
                     throw err;
         });
-
   })
 });
 
