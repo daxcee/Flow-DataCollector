@@ -1,35 +1,56 @@
 var express = require('express');
-
+var fs = require('fs');
 var router = express.Router();
 var path = require("path");
+var request = require('request');
+var $ = require('cheerio');
+var config = require('config');
 
 router.get('/', function(req, res) {
-  url = 'http://localhost/maand.html';
+    res.sendFile('events-sample.html', { root: path.join(__dirname, '../public') });
+});
 
-  request(url, function(error, response, html){
-    if(!error){
-      var $ = cheerio.load(html);
+router.get('/scrape', function(req, res) {
+    url =  config.get('local_path') +'/events-sample.html';
 
-      var key;
-      var json = { key : ""};
+    request(url, function(err, resp, html){
+        if(err) {
+          throw err;
+        } else {
+            var parsedHTML = $.load(html);
+            var items = [];
+            var eventItem = {
+                id: '',
+                date: '',
+                title: '',
+                venue: '',
+                city: ''
+            };
 
-      $('#agendaitem').filter(function(){
-        console.log('find tag: ');
+            parsedHTML('.eventItem').map(function(i, item) {
+              var id = $(item).find('.party').attr('href');
+              var offset = id.indexOf("=");
+              if(offset != -1)
+                  id = id.substring(offset+1, id.length);
+              var eventItem = {
+                  id: $(item).attr('date'),
+                  date: $(item).find('.party').text(),
+                  title: $(item).find('.party').text(),
+                  venue: $(item).children().last().text(),
+                  city: $(item).children().last().text()
+              };
+              items.push(eventItem);
+              console.log("parsed item: " + eventItem);
+          });
+        }
 
-        var data = $(this);
-        console.log('res: '+ data);
+        res.end(JSON.stringify(items, null, 4));
 
-        key= data.children().first().text();
-        json.key = key;
-      })
+        fs.writeFile('./data/scraped-events.json',JSON.stringify(items, null, 4), function(err){
+                if(err)
+                    throw err;
+        });
 
-    }
-
-    fs.writeFile('output.json', JSON.stringify(json, null, 4), function(err){
-      console.log('File successfully written! - Check your project directory for the output.json file');
-    });
-
-    res.send('Check your console!')
   })
 });
 
