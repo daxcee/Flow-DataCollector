@@ -80,3 +80,7 @@ node_modules
 
 # Environment config file
 .env
+
+#Scrape output
+data
+data/*.json
