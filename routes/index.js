@@ -11,7 +11,7 @@ var moment = require('moment');
 var mkdirp = require('mkdirp');
 
 router.get('/', function(req, res) {
-    res.sendFile('m.html', { root: path.join(__dirname, '../public') });
+    res.sendFile('events-sample.html', { root: path.join(__dirname, '../public') });
 });
 
 /***
