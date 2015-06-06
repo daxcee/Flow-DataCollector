@@ -8,5 +8,5 @@ module.exports = {
             process.env.RESOURCE_0
         ],
     outputPath: './data/scraped/',
-    cronTime:'00 45 23 * * 1-7' //Runs every day of the week on @ 6:13 AM,
+    cronTime:'00 59 23 * * 1-7' //Runs every day of the week on @ 6:13 AM,
 };
