@@ -11,22 +11,39 @@ var moment = require('moment');
 var mkdirp = require('mkdirp');
 
 router.get('/', function(req, res) {
-    res.sendFile('events-sample.html', { root: path.join(__dirname, '../public') });
+    res.sendFile('m.html', { root: path.join(__dirname, '../public') });
 });
+
+/***
+ * The the best abilities try to hold-on etiquette, so we don't aggrevate any one
+ * Food for thought on web-scraping etiquette :{@link http://stackoverflow.com/questions/2022030/web-scraping-etiquette}
+ */
+
+// set some defaults
+request = request.defaults({
+    jar: true,                 // save cookies to jar
+    rejectUnauthorized: false,
+    followAllRedirects: true   // allow redirections
+});
+
+var headers = {
+    headers: {
+        'User-Agent': config.get('userAgents')[0]
+    }
+};
 
 /**
  * Cron job runs every minute, for now, for production properly setup schedule.
  * More info: http://crontab.org
 */
 new CronJob(config.get('cronTime'), function(next, res, req) {
-        url = config.get('scrapeResources')[0];
+        url = config.get('scrapeResources')[1];
         console.log(moment().format() + ' cron job for: ' + url);
-        request(url, function(err, resp, html){
+        request.get(url,headers, function(err, resp, html){
             if(err) {
                 throw err;
             } else {
                 var items =[];
-
                 var parsedHTML = $.load(html);
                 var eventItem = {
                     id: '',
@@ -35,17 +52,25 @@ new CronJob(config.get('cronTime'), function(next, res, req) {
                     venue: '',
                     city: ''
                 };
-                parsedHTML('.eventItem').map(function(i, item) {
+                parsedHTML('.agendaitem').map(function(i, item) {
                     var id = $(item).find('.party').attr('href');
-                    var offset = id.indexOf("=");
-                    if(offset != -1)
-                        id = id.substring(offset+1, id.length);
+                    var IdOffset = id.indexOf("=");
+                    if(IdOffset != -1)
+                        id = id.substring(IdOffset+1, id.length);
+
+                    var eventDate = '';
+                    if($(item).attr('title'))
+                        eventDate = String($(item).attr('title'));
+                    var dateOffset = eventDate.indexOf(' ');
+                    if(dateOffset != -1)
+                        eventDate = eventDate.substring(dateOffset+1, eventDate.length);
+
                     var eventItem = {
                         id: id,
-                        date: $(item).attr('date'),
+                        date: eventDate,
                         title: $(item).find('.party').text(),
-                        venue: $(item).children().first().next().text(),
-                        city: $(item).children().last().text()
+                        venue: $(item).children().first().next().next().next().text(),
+                        city: $(item).children().first().next().next().next().next().next().text()
                     };
                     items.push(eventItem);
                 });
@@ -55,13 +80,9 @@ new CronJob(config.get('cronTime'), function(next, res, req) {
     },function (items ) {
         var filename = 'scraped-events-' + moment().format() + '.json';
         var path = './data/scraped/';
-        console.log('postExcec called');
-
-        //postExecution
         mkdirp(path, function(err) {
             if(err)
                 throw err;
-            // path was created unless there was error
             else {
                 fs.writeFile(path + filename, items, function (err) {
                     console.log('File written at: ' + path);
