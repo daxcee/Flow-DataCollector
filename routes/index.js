@@ -3,9 +3,7 @@ require('../models/event')();
 var express = require('express');
 var fs = require('fs');
 var router = express.Router();
-var path = require("path");
 var request = require('request');
-var zlib = require('zlib');
 var $ = require('cheerio');
 var config = require('config');
 var pretty = require('../utils/pretty');
@@ -40,8 +38,10 @@ var options = {
         'accept-charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
         'accept-language': 'en-US,en;q=0.8,nl-NL,nl;q=0.8',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'User-Agent': random_useragent.getRandom(), // We should identify ourselfs properly, don't want to ... for now :p
-        'accept-encoding': 'gzip,deflate'           // Improve transfer speed and do not consume too much bandwidth.
+        'User-Agent': random_useragent.getRandom() // We should identify ourselfs properly, don't want to ... for now :p
+        // Resource1 has no gzip support, that's dumb ;p, they should enable it as it
+        // improves transfer speed and do not consume too much bandwidth.
+        //'accept-encoding': 'gzip,deflate'
     }
 };
 /**
@@ -56,14 +56,16 @@ new CronJob(config.get('cronTime'), function(next) {
             } else { // DOM traversal: https://github.com/cheeriojs/cheerio#api
                 var items =[];
                 var parsedHTML = $.load(body);
-                parsedHTML('.agendaitem').map(function(i, item) {
-                    var eventDate;
-                    if($(item).attr('title'))
-                        eventDate = String($(item).attr('title'));
-                    var dateOffset = eventDate.indexOf(' ');
-                    if(dateOffset != -1)
-                        eventDate = eventDate.substring(dateOffset+1, eventDate.length);
+                console.log('res:' + body);
 
+                parsedHTML('.agendaitem').map(function(i, item) {
+                    var eventDate = '';
+                    if($(item).attr('title')) {
+                        eventDate = String($(item).attr('title'));
+                        var dateOffset = eventDate.indexOf(' ');
+                        if (dateOffset != -1)
+                            eventDate = eventDate.substring(dateOffset + 1, eventDate.length);
+                    }
                     var newEventItem = new Event({
                         pid: '',
                         date: eventDate,
