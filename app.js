@@ -41,6 +41,11 @@ app.use(function(err, req, res, next) {
   });
 });
 
+fs.readdirSync(__dirname + '/models').forEach(function(filename) {
+    if (~filename.indexOf('.js'))
+        require(__dirname + '/models/' + filename)
+});
+
 app.listen(app.get('port'), function() {
   if(process.env.NODE_ENV == 'development'){
     console.log("Running at: " +
