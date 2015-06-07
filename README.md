@@ -56,7 +56,7 @@ Startup mongo by running:
 
 	   mongo
 	   
-Create a database, named `flow`:	   
+Create a database named `scraper`:	   
 
 	   use scraper
 		
