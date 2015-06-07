@@ -2,7 +2,7 @@ require('dotenv').load();
 
 module.exports = {
     db_uri: 'mongodb://' + process.env.DB_USER + ':' + process.env.DB_PASSWORD + '@' + process.env.DB_HOST + ':' + process.env.DB_PORT + '/' + process.env.DB_NAME,
-    redirectURL: 'https://' + process.env.REDIRECT_URL,
+    redirectURL: process.env.REDIRECT_URL,
     resources:
         [
             'http://' + process.env.RESOURCE_0
