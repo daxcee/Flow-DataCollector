@@ -16,7 +16,8 @@ var Event = conn.model('Event');
 var random_useragent = require('random-useragent');
 
 router.get('/', function(req, res) {
-    res.send('<a href=' + config.get('redirectURL') + '> Flow API Overview </a>');
+    res.writeHead(302, {'location': config.get('redirectURL')});
+    res.end();
 });
 
 /***
