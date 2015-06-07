@@ -48,8 +48,8 @@ Create a .env file in the root directory of your project. Add these environment-
 	CLIENT_SECRET=googleClientSecret
 	REDIRECT_URL=redirecturl
 	RESOURCE_0=resource0url
-
-
+	APP_URL=appurl
+  
 ### Import JSON sample data
 
 Startup mongo by running:

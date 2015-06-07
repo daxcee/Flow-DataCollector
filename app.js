@@ -10,6 +10,7 @@ var fs = require('fs');
 var requireDir = require('require-dir');
 var routes = requireDir('./routes',{camelcase: true});
 var config = require('config');
+require('heroku-self-ping')(config.get('app_url'));
 
 var app = express();
 

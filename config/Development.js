@@ -5,8 +5,9 @@ module.exports = {
     redirectURL: 'https://' + process.env.REDIRECT_URL,
     resources:
         [
-            process.env.RESOURCE_0
+            'http://' + process.env.RESOURCE_0
         ],
     outputPath: './data/scraped/',
-    cronTime:'*/10 * * * * *' //Runs every second
-    };
+    cronTime:'*/10 * * * * *', //Runs every second
+    app_url: 'https://' + process.env.APP_URL
+};
