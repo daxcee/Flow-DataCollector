@@ -33,7 +33,22 @@ and thus are only available on the local machine.
 
 ### Environment variables
 
-TBD
+Create a .env file in the root directory of your project. Add these environment-specific variables on new lines in the form of NAME=VALUE:
+
+	DB_HOST=remotehost
+	DB_NAME=dbname
+	DB_PASSWORD=dbpass
+	DB_PORT=defaultport
+	DB_USER=username
+	NODE_ENV=Production
+	LOCAL_HOST=localhost
+	LOCAL_PORT=defaultport
+	LOCAL_DBPORT=defaultport
+	CLIENT_ID=googleClientId
+	CLIENT_SECRET=googleClientSecret
+	REDIRECT_URL=redirecturl
+	RESOURCE_0=resource0url
+
 
 ### Import JSON sample data
 
@@ -44,17 +59,6 @@ Startup mongo by running:
 Create a database, named `flow`:	   
 
 	   use scraper
-
-
-Sample data can be found in the [samples](https://github.com/srmds/FlowAPI/tree/master/samples) dir, import by running:
-
-via the provided shell script, found in root:
-
-    ./data_import.sh
-
-or manually on each file:     
-
-		mongoimport -d db_name -c collection_name --file filename.json --jsonArray
 		
 ### Start server
 			
@@ -68,8 +72,6 @@ Open up a new browser tab and go to the follow to check if server is properly ru
 [http://localhost:3000](http://localhost:3000)
 
 ## Mocha tests
-
-For every API endpoint there are tests, see test dir.
 
 To run the Mocha tests, from `root` run:
 
