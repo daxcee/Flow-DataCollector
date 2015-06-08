@@ -9,6 +9,10 @@ var Event = conn.model('Event');
 
 module.exports = {
     scrape: function(options){
+        /**
+         * Cron job runs every minute, on dev, for production based on given date.
+         * More info: http://crontab.org
+         */
         new CronJob(config.get('cronTime'), function(next) {
                 console.log(moment().format() + ' cron job for: ' +  options.url);
                 request(options, function(err, res, body){

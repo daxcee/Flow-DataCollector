@@ -1,13 +1,9 @@
 var request = require('request');
-var $ = require('cheerio');
 var config = require('config');
-var CronJob = require('cron').CronJob;
-var moment = require('moment');
 var mongoose = require('mongoose');
 var conn = mongoose.createConnection(config.get('db_uri'),{ server: { poolSize: 4 }});
 var Event = conn.model('Event');
 var random_useragent = require('random-useragent');
-
 var djg = require('../cronjobs/cronJobDJG');
 
 module.exports = {
@@ -40,10 +36,7 @@ module.exports = {
             }
         };
 
-        /**
-         * Cron job runs every minute, for now, for production properly setup schedule.
-         * More info: http://crontab.org
-         */
-        var cronJobDJG = djg.scrape(options);
+
+        djg.scrape(options);
     }
 };
