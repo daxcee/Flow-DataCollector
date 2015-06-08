@@ -61,7 +61,7 @@ new CronJob(config.get('cronTime'), function(next) {
                     }
                     var title =  $(item).find('.party').text();
                     //Check if item isn't already in datastore.
-                    Event.find({title : newEventItem.title}, function (err, docs) {
+                    Event.find({title : title}, function (err, docs) {
                         if (!docs.length){
                             console.log('Save event: ', eventDate + ' - ' + title);
                             var newEventItem = new Event({
