@@ -1,15 +1,12 @@
 require('../models/event')();
 
 var express = require('express');
-var fs = require('fs');
 var router = express.Router();
 var request = require('request');
 var $ = require('cheerio');
 var config = require('config');
-var pretty = require('../utils/pretty');
 var CronJob = require('cron').CronJob;
 var moment = require('moment');
-var mkdirp = require('mkdirp');
 var mongoose = require('mongoose');
 var conn = mongoose.createConnection(config.get('db_uri'),{ server: { poolSize: 4 }});
 var Event = conn.model('Event');
@@ -54,8 +51,6 @@ new CronJob(config.get('cronTime'), function(next) {
             } else { // DOM traversal: https://github.com/cheeriojs/cheerio#api
                 var items =[];
                 var parsedHTML = $.load(body);
-                console.log('res:' + body);
-
                 parsedHTML('.agendaitem').map(function(i, item) {
                     var eventDate = '';
                     if($(item).attr('title')) {
@@ -64,29 +59,24 @@ new CronJob(config.get('cronTime'), function(next) {
                         if (dateOffset != -1)
                             eventDate = eventDate.substring(dateOffset + 1, eventDate.length);
                     }
-                    var newEventItem = new Event({
-                        pid: '',
-                        date: eventDate,
-                        title: $(item).find('.party').text(),
-                        venue: $(item).children().eq(3).text(),
-                        city: $(item).children().eq(5).text(),
-                        country: $(item).children().eq(6).text()
+                    var title =  $(item).find('.party').text();
+                    //Check if item isn't already in datastore.
+                    Event.find({title : title}, function (err, docs) {
+                        if (!docs.length){
+                            console.log('Save event: ', eventDate + ' - ' + title);
+                            var newEventItem = new Event({
+                                pid: '',
+                                date: eventDate,
+                                title: title,
+                                venue: $(item).children().eq(3).text(),
+                                city: $(item).children().eq(5).text(),
+                                country: $(item).children().eq(6).text()
+                            });
+                            newEventItem.save();
+                        }else{
+                            console.log('Event already exists, skipping: ', eventDate + ' - ' + title);
+                        }
                     });
-                    newEventItem.save();
-                    items.push(newEventItem);
-                });
-            }
-            next(pretty.print(items));
-        });
-    },function (items ) {
-        var path = config.get('outputPath');
-        mkdirp(path, function(err) {
-            if(err)
-                throw err;
-            else {
-                var filename = 'scraped-events-' + moment().format() + '.json';
-                fs.writeFile(path + 'scraped-events-' + moment().format() + '.json', items, function (err) {
-                    console.log('File written: ' + path + filename);
                 });
             }
         });
