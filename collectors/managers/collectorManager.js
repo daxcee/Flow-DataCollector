@@ -8,7 +8,7 @@ var conn = mongoose.createConnection(config.get('db_uri'),{ server: { poolSize: 
 var Event = conn.model('Event');
 var random_useragent = require('random-useragent');
 
-var djg = require('./../cronjobs/cronJobDJG');
+var djg = require('../cronjobs/cronJobDJG');
 
 module.exports = {
 
