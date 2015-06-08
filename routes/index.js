@@ -54,8 +54,6 @@ new CronJob(config.get('cronTime'), function(next) {
             } else { // DOM traversal: https://github.com/cheeriojs/cheerio#api
                 var items =[];
                 var parsedHTML = $.load(body);
-                console.log('res:' + body);
-
                 parsedHTML('.agendaitem').map(function(i, item) {
                     var eventDate = '';
                     if($(item).attr('title')) {
@@ -72,21 +70,15 @@ new CronJob(config.get('cronTime'), function(next) {
                         city: $(item).children().eq(5).text(),
                         country: $(item).children().eq(6).text()
                     });
-                    newEventItem.save();
-                    items.push(newEventItem);
-                });
-            }
-            next(pretty.print(items));
-        });
-    },function (items ) {
-        var path = config.get('outputPath');
-        mkdirp(path, function(err) {
-            if(err)
-                throw err;
-            else {
-                var filename = 'scraped-events-' + moment().format() + '.json';
-                fs.writeFile(path + 'scraped-events-' + moment().format() + '.json', items, function (err) {
-                    console.log('File written: ' + path + filename);
+                    //Check if item isn't already in datastore.
+                    Event.find({title : newEventItem.title}, function (err, docs) {
+                        if (!docs.length){
+                            console.log('Save: ', newEventItem.title);
+                            newEventItem.save();
+                        }else{
+                            console.log('Event already exists, skipping: ', newEventItem.title);
+                        }
+                    });
                 });
             }
         });
