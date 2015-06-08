@@ -9,5 +9,10 @@ module.exports = {
         ],
     outputPath: './data/scraped/',
     cronTime:'*/10 * * * * *', //Runs every second
-    app_url: 'https://' + process.env.APP_URL
+    app_url: 'https://' + process.env.APP_URL,
+    proxyRequest:'http://' + process.env.LOCAL_HOST + ':' + process.env.LOCAL_PORT + '/proxies',
+    proxyResources:[
+        'http://' + process.env.PROXY_0
+    ],
+    proxyCountry: process.env.PROXY_COUNTRY
 };

@@ -14,11 +14,14 @@ var mongoose = require('mongoose');
 var conn = mongoose.createConnection(config.get('db_uri'),{ server: { poolSize: 4 }});
 var Event = conn.model('Event');
 var random_useragent = require('random-useragent');
+var proxies = require('../utils/proxies');
 
 router.get('/', function(req, res) {
     res.writeHead(302, {'location': config.get('redirectURL')});
     res.end();
 });
+
+router.get('/proxies', proxies.getProxies);
 
 /***
  * To the best of abilities try to hold-on to etiquette, so we don't aggravate anyone ;)
@@ -32,6 +35,7 @@ request = request.defaults({
 });
 var options = {
     url: config.get('resources')[0],
+    proxy:'',
     headers: {
         'accept-charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
         'accept-language': 'en-US,en;q=0.8,nl-NL,nl;q=0.8',
@@ -48,36 +52,52 @@ var options = {
 */
 new CronJob(config.get('cronTime'), function(next) {
         console.log(moment().format() + ' cron job for: ' + options.url);
-        request(options, function(err, res, body){
-            if(err) {
-                throw err;
-            } else { // DOM traversal: https://github.com/cheeriojs/cheerio#api
-                var items =[];
-                var parsedHTML = $.load(body);
-                console.log('res:' + body);
 
-                parsedHTML('.agendaitem').map(function(i, item) {
-                    var eventDate = '';
-                    if($(item).attr('title')) {
-                        eventDate = String($(item).attr('title'));
-                        var dateOffset = eventDate.indexOf(' ');
-                        if (dateOffset != -1)
-                            eventDate = eventDate.substring(dateOffset + 1, eventDate.length);
-                    }
-                    var newEventItem = new Event({
-                        pid: '',
-                        date: eventDate,
-                        title: $(item).find('.party').text(),
-                        venue: $(item).children().eq(3).text(),
-                        city: $(item).children().eq(5).text(),
-                        country: $(item).children().eq(6).text()
-                    });
-                    newEventItem.save();
-                    items.push(newEventItem);
-                });
+        request(config.get('proxyRequest'), function(error, response){
+            var proxies = [];
+            var ip, port;
+            if(error) throw error;
+            else {
+                var data = JSON.parse(response.body);
+                console.log('use proxy: ' + data[0].ip);
+                ip = data[0].ip;
+                port = data[0].port;
             }
-            next(pretty.print(items));
+            options.proxy = 'http://' + ip + ':' + port;
+            request(options, function(err, res, body){
+
+                if(err) {
+                    throw err;
+                } else { // DOM traversal: https://github.com/cheeriojs/cheerio#api
+                    var items =[];
+                    var parsedHTML = $.load(body);
+                     console.log('res:' + body);
+
+                    parsedHTML('.agendaitem').map(function(i, item) {
+                        var eventDate = '';
+                        if($(item).attr('title')) {
+                            eventDate = String($(item).attr('title'));
+                            var dateOffset = eventDate.indexOf(' ');
+                            if (dateOffset != -1)
+                                eventDate = eventDate.substring(dateOffset + 1, eventDate.length);
+                        }
+                        var newEventItem = new Event({
+                            pid: '',
+                            date: eventDate,
+                            title: $(item).find('.party').text(),
+                            venue: $(item).children().eq(3).text(),
+                            city: $(item).children().eq(5).text(),
+                            country: $(item).children().eq(6).text()
+                        });
+                        newEventItem.save();
+                        items.push(newEventItem);
+                    });
+                }
+                next(pretty.print(items));
+            })
+
         });
+
     },function (items ) {
         var path = config.get('outputPath');
         mkdirp(path, function(err) {
